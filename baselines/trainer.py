@@ -187,7 +187,7 @@ class Tranier:
             self.writer.add_scalar('Training/LearningRate', current_lr, epoch)
             self.logger.info(f"Current learning rate: {current_lr}")
 
-            save_checkpoint_model(self.model, self.optimizer, epoch, val_acc, self.config, self.exp_dir)
+            save_checkpoint_model(self.model, self.optimizer, epoch, val_acc,  self.exp_dir , self.config)
 
         self.writer.close()
         self.save_model()
