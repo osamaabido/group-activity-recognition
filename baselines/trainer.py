@@ -39,13 +39,13 @@ class Tranier:
         self.optimizer = torch.optim.AdamW(self.model.parameters(),
                         lr= self.config['training']['learning_rate'],
                         weight_decay=self.config['training']['weight_decay'])
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=3, verbose=True ) if config.lr_scheduler else None
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=3, verbose=True ) if self.config.lr_scheduler else None
         self.scaler = GradScaler('cuda')
         self.criterion = torch.nn.CrossEntropyLoss()
         self.logger = setup_logging(self.config.save_dir)
         self.writer = SummaryWriter(log_dir=self.config.save_dir)
         self.train_loader, self.val_loader = self.prepare_data()
-        self.class_names = self.config['model']['num_clases_label']
+        self.class_names = self.config['model']['num_classes_label']
         config_save_path = os.path.join(self.exp_dir, 'config.yaml')
         with open(config_save_path, 'w') as config_file:
             yaml.dump(self.config, config_file)
@@ -139,7 +139,7 @@ class Tranier:
         self.writer.add_scalar('Validation/Loss', avg_loss, epoch)
         self.writer.add_scalar('Validation/Accuracy', accuracy, epoch)
         self.writer.add_scalar('Validation/F1Score', f1_score, epoch)
-        self.writer.add_figure('Validation/ConfusionMatrix', plot_confusion_matrix(y_true, y_pred, self.config["model"]['num_clases_label']))
+        self.writer.add_figure('Validation/ConfusionMatrix', plot_confusion_matrix(y_true, y_pred, self.config["model"]['num_classes_label']))
 
         self.logger.info(f"Epoch {epoch} | Valid Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}% | F1 Score: {f1_score:.4f}")
         return avg_loss, accuracy
