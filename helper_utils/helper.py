@@ -37,26 +37,46 @@ def save_checkpoint_model(model , optimizer , epoch , val_acc , exp_dir , config
         print(f"Best model saved at {best_model_path}")
         
 def load_checkpoint_model(checkpoint_path , model , optimizer , device):
+    """
+    Load model and training state from checkpoint
+    Args:
+        checkpoint_path: Path to checkpoint file
+        model: PyTorch model
+        optimizer: PyTorch optimizer
+        device: Device to load the model on
+    Returns:
+        tuple: (model, optimizer, config, exp_dir, start_epoch)
+    """
     try:
-        with open(checkpoint_path , 'rb') as f:
-            checkpoint = torch.load(checkpoint_path, map_location=device)
-    except EOFError as pickle_error:
-        raise RuntimeError(
-                f"Failed to load checkpoint : {pickle_error}"
+        checkpoint = torch.load(checkpoint_path, map_location=device)
+    except Exception as e:
+        try:
+            with open(checkpoint_path, 'rb') as f:
+                checkpoint = pickle.load(f)
+            torch.save(checkpoint, checkpoint_path)    
+        except Exception as pickle_error:
+            raise RuntimeError(
+                f"Failed to load checkpoint using both torch.load and pickle.load: {pickle_error}"
             ) from pickle_error
-        
+
     model.load_state_dict(checkpoint['model_state_dict'])
+
+    if optimizer == None: return model
+       
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    for state_value in optimizer.state.values():
-        for k, v in state_value.items():
+    
+    # Move optimizer states to correct device
+    for state in optimizer.state.values():
+        for k, v in state.items():
             if isinstance(v, torch.Tensor):
-                state_value[k] = v.to(device)
+                state[k] = v.to(device)
     
     start_epoch = checkpoint['epoch'] + 1
     config = checkpoint.get('config', None)
     exp_dir = checkpoint.get('exp_dir', None)
     
     return model, optimizer, config, exp_dir, start_epoch
+
 
 def setup_training_directories(base_dir='runs'):
     """Create timestamped directory for saving training artifacts."""
