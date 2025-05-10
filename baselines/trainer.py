@@ -157,7 +157,7 @@ class Tranier:
                 images, labels = images.to(self.device), labels.to(self.device)
                 self.optimizer.zero_grad()
 
-                with autocast(dtype=torch.float16):
+                with autocast(device_type='cuda' , dtype=torch.float16):
                     preds = self.model(images)
                     loss = self.criterion(preds, labels)
 
