@@ -170,7 +170,6 @@ class Tranier:
                 true_classes = labels.argmax(dim=1)
                 total_samples += labels.size(0)
                 total_correct += (predicted_classes == true_classes).sum().item()
-
                 if batch_idx % 100 == 0:
                     acc = total_correct / total_samples
                     self.logger.info(f"Batch {batch_idx}/{len(self.train_loader)} - Loss: {loss.item():.4f} - Accuracy: {acc:.4f}")

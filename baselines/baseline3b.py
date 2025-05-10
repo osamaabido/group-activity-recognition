@@ -41,11 +41,11 @@ class NN_Training(Tranier):
         )
         os.makedirs(self.exp_dir, exist_ok=True)
         self.set_seed(self.config['experiment']['seed'])
-        self.modelb = ClassiferNN(
+        self.model = ClassiferNN(
             person_feature_extraction=self.person_activity, 
         num_classes=self.config['model']['num_classes']['group_activity']
-        )
-        self.optimizer = torch.optim.AdamW(self.modelb.parameters(),
+        ).to(self.device)
+        self.optimizer = torch.optim.AdamW(self.model.parameters(),
                         lr= self.config['training']['learning_rate'],
                         weight_decay=self.config['training']['weight_decay'])
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=3, verbose=True ) 
