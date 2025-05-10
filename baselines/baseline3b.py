@@ -18,7 +18,7 @@ from dataloader.DataLoader import Group, group_activity_labels , Person , person
 from eval_utils import get_f1_score, plot_confusion_matrix
 from helper_utils import load_config, setup_logging, save_checkpoint_model , load_checkpoint_model
 from baselines.trainer import Tranier
-Project_Root = r"H:\Group-Activity-Recognition"
+Project_Root = r"/kaggle/working/"
 
 sys.path.append(Project_Root)
 
@@ -43,7 +43,7 @@ class NN_Training(Tranier):
         self.set_seed(self.config['experiment']['seed'])
         self.modelb = ClassiferNN(
             person_feature_extraction=self.person_activity, 
-        num_classes=self.config.model['num_classes']['group_activity']
+        num_classes=self.config['model']['num_classes']['group_activity']
         )
         self.optimizer = torch.optim.AdamW(self.modelb.parameters(),
                         lr= self.config['training']['learning_rate'],
