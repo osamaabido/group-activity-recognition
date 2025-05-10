@@ -37,6 +37,36 @@ def save_checkpoint_model(model , optimizer , epoch , val_acc , exp_dir , config
         print(f"Best model saved at {best_model_path}")
         
 def load_checkpoint_model(checkpoint_path , model , optimizer , device):
+    try:
+        with open(checkpoint_path , 'rb') as f:
+            checkpoint = torch.load(checkpoint_path, map_location=device)
+    except EOFError as pickle_error:
+        raise RuntimeError(
+                f"Failed to load checkpoint : {pickle_error}"
+            ) from pickle_error
+        
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    for state_value in optimizer.state.values():
+        for k, v in state_value.items():
+            if isinstance(v, torch.Tensor):
+                state_value[k] = v.to(device)
+    
+    start_epoch = checkpoint['epoch'] + 1
+    config = checkpoint.get('config', None)
+    exp_dir = checkpoint.get('exp_dir', None)
+    
+    return model, optimizer, config, exp_dir, start_epoch
+
+def setup_training_directories(base_dir='runs'):
+    """Create timestamped directory for saving training artifacts."""
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    save_dir = os.path.join(base_dir, timestamp)
+    os.makedirs(save_dir, exist_ok=True)
+    return save_dir
+
+
+def load_checkpoint_model(checkpoint_path , model , optimizer , device):
     """
     Load model and training state from checkpoint
     Args:
@@ -76,11 +106,3 @@ def load_checkpoint_model(checkpoint_path , model , optimizer , device):
     exp_dir = checkpoint.get('exp_dir', None)
     
     return model, optimizer, config, exp_dir, start_epoch
-
-
-def setup_training_directories(base_dir='runs'):
-    """Create timestamped directory for saving training artifacts."""
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    save_dir = os.path.join(base_dir, timestamp)
-    os.makedirs(save_dir, exist_ok=True)
-    return save_dir
