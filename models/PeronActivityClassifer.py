@@ -8,8 +8,6 @@ import torchvision.models as models
 class ClassiferNN(nn.Module):
     def __init__(self, person_feature_extraction, num_classes):
         super(ClassiferNN, self).__init__()
-        #  Extract feature layers of ResNet50 (excluding final FC layer)
-        self.fc_in_features = person_feature_extraction.in_features
         self.feature_extraction = nn.Sequential(*list(person_feature_extraction.resnet50.children())[:-1])
 
         for param in self.feature_extraction.parameters():
@@ -36,3 +34,4 @@ class ClassiferNN(nn.Module):
         x = x.squeeze(dim=1) 
         x = self.fc(x) 
         return x
+    
