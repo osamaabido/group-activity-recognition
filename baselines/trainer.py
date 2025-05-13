@@ -139,7 +139,7 @@ class Tranier:
         self.writer.add_scalar('Validation/Loss', avg_loss, epoch)
         self.writer.add_scalar('Validation/Accuracy', accuracy, epoch)
         self.writer.add_scalar('Validation/F1Score', f1_score, epoch)
-        self.writer.add_figure('Validation/ConfusionMatrix', plot_confusion_matrix(y_true, y_pred, self.config["model"]['num_classes_label'] , "/kaggle/working/"))
+        self.writer.add_figure('Validation/ConfusionMatrix', plot_confusion_matrix(y_true, y_pred, self.config["model"]['num_classes_label']["group_activity"] , "/kaggle/working/"))
 
         self.logger.info(f"Epoch {epoch} | Valid Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}% | F1 Score: {f1_score:.4f}")
         return avg_loss, accuracy
