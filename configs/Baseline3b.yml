@@ -14,7 +14,7 @@ training:
   learning_rate: 0.0005 
   epochs: 15
   optimizer: "AdamW"
-  weight_decay: 0.2
+  weight_decay: 0.1
 
 data:
   dataset_name: GroupActivityDataset
