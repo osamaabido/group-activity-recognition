@@ -84,7 +84,7 @@ def model_eval(model , data_loader , criterion = None ,device =None ,  path ="" 
     y_pred=[]
     loss = 0.0
     with torch.no_grad():
-        for inuputs , targets in data_loader:
+        for inputs , targets in data_loader:
             inputs , targets = inputs.to(device) , targets.to(device)
             outputs = model(inputs)
             if criterion:
