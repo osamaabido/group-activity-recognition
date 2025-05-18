@@ -297,7 +297,7 @@ class Group(Dataset):
              # return a full clip with each frame dir with its group label (all the same) ((9, frame) , tensor(9,8))
             clip = [] 
             labels = []
-            for frame_path in sample['frames_path']:
+            for frame_path in sample['frames_paths']:
                 frame = cv2.imread(frame_path)
                 labels.append(label)
                 
