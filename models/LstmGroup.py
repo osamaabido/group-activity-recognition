@@ -25,7 +25,7 @@ class LSTMGroup(nn.Module):
             nn.Linear(128, num_classes)
         )
         
-        def forward(self, x):
+    def forward(self, x):
             batch, seq, c, h, w = x.shape
             x1 = x.view(batch * seq, c, h, w)
             x1 = self.feature_extraction(x1)
