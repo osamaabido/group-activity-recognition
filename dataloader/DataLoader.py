@@ -167,6 +167,18 @@ class Group(Dataset):
     def __init__(self, videos_path: str, annot_path: str, seq: bool = False, 
                  crops: bool = False, sort: bool=False , split: list = [], only_tar: bool= False,
                  labels: dict = {}, transform=None):
+        """
+        Args:
+            videos_path: Path to video frames
+            annot_path: Path to annotations file
+            seq: Whether to return sequential data
+            crops: Whether to return person crops or full frames
+            sort: sort the persons by the ids
+            split: List of clip IDs to use
+            labels: Group activity labels dictionary
+            transform: Optional transform to apply
+            only_tar: Whether to use only target frames
+        """
         self.videos_path = Path(videos_path)
         self.transform = transform
         self.seq = seq
@@ -179,15 +191,16 @@ class Group(Dataset):
         with open(annot_path, 'rb') as f:
             videos_annot = pickle.load(f)
             
-        self.data =[]
+        # Create index mapping for efficient retrieval
+        self.data = []
         for clip_id in split:
             clip_dirs = videos_annot[str(clip_id)]
             
-            for clip_dir  in clip_dirs.keys():
+            for clip_dir in clip_dirs.keys():
                 frames_data = clip_dirs[str(clip_dir)]['frame_boxes_dct']
                 category = clip_dirs[str(clip_dir)]['category']
                 dir_frames = list(clip_dirs[str(clip_dir)]['frame_boxes_dct'].items())
-            
+              
                 if not crops and not seq:
                     # return a full image of target frame with its group label (frame, tensor(8))
                     for frame_id , boxes in dir_frames:
@@ -198,19 +211,23 @@ class Group(Dataset):
                             'frame_path': f"{videos_path}/{str(clip_id)}/{str(clip_dir)}/{frame_id}.jpg",
                             'category': category,
                         })
+
                 elif not crops and seq:
+                     # return a full clip with each frame dir with its group label (all the same) ((9, frame) , tensor(9,8))
                      frames_paths = []
                      for frame_id , boxes in dir_frames:
 
                           if only_tar and str(frame_id) != str(clip_dir): continue
                           
-                          frames_paths.append(f"{videos_path}\\{str(clip_id)}\\{str(clip_dir)}\\{frame_id}.jpg")
+                          frames_paths.append(f"{videos_path}/{str(clip_id)}/{str(clip_dir)}/{frame_id}.jpg")
                    
                      self.data.append({
                         'frames_paths':frames_paths,
                         'category': category,
                         })
+
                 elif crops and not seq:
+                    # return a all player crops of the target frame with its group label (all player have same label)  ( (12, crop frame), tensor(1,8))                   
                     for frame_id , boxes in dir_frames:
 
                         if only_tar and str(frame_id) != str(clip_dir): continue
@@ -227,6 +244,7 @@ class Group(Dataset):
                         'boxes': boxes,
                         'category': category,
                         })    
+                                           
                 else:  
                       # when crop and seq are true return a full clip with all player crop with its group label (all the same) ((12, 9, crop frame), tensor(9,8)
                       frame_data = []
@@ -250,6 +268,7 @@ class Group(Dataset):
 
     def __len__(self):
         return len(self.data)
+    
     def _calculate_box_center(self, box: BoxInfo):
     
         x_min, y_min, x_max, y_max = box
