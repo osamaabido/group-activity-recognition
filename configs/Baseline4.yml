@@ -3,7 +3,7 @@ model:
   input_size: 2048 
   hidden_size: 512
   num_layers: 1
-  num_clases_label:  ["r_set", "r_spike" , "r-pass", "r_winpoint", "l_winpoint", "l-pass", "l-spike", "l_set"]
+  num_classes_label:  ["r_set", "r_spike" , "r-pass", "r_winpoint", "l_winpoint", "l-pass", "l-spike", "l_set"]
 
 training:
   batch_size: 32
