@@ -4,9 +4,9 @@ from torchvision.models import resnet50
 class LSTMGroup(nn.Module):
     def __init__(self , input_size , hidden_size , num_layers , num_classes):
         super(LSTMGroup, self).__init__()
-        resnet50 = resnet50(weights=resnet50.ResNet50_Weights.DEFAULT)
+        self.resnet50 = resnet50(weights=resnet50.ResNet50_Weights.DEFAULT)
        
-        self.feature_extraction = nn.Sequential(*list(resnet50.children())[:-1])
+        self.feature_extraction = nn.Sequential(*list(self.resnet50.children())[:-1])
         self.lstm = nn.LSTM(
             input_size=input_size,
             hidden_size=hidden_size,
