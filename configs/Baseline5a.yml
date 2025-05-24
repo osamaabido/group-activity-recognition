@@ -2,7 +2,7 @@ model:
   hidden_size: 128
   num_layers: 1 
   num_classes: 9
-  num_clases_label: ["Waiting", "Setting", "Digging", "Falling", "Spiking", "Blocking", "Jumping", "Moving", "Standing"]
+  num_classes_label: ["Waiting", "Setting", "Digging", "Falling", "Spiking", "Blocking", "Jumping", "Moving", "Standing"]
 
 training:
   batch_size: 2
