@@ -24,11 +24,11 @@ class Baseline5bTrainer():
   def __init__(self , config_file_path , project_root , person_activity_checkpoints):
     self.Project_Root = project_root
     self.config = load_config(config_file_path)
-    self.device = torch.device('cuda' if torch.cuda.is_availabl() else 'cpu')
+    self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     self.modela = LSTMPerson(
-        num_classes=self.config.model['num_classes']['person_activity'],
-        hidden_size=self.config.model['hyper_param']['person_activity']['hidden_size'],
-        num_layers=self.config.model['hyper_param']['person_activity']['num_layers']
+        num_classes=self.config['model']['num_classes']['person_activity'],
+        hidden_size=self.config['model']['hyper_param']['person_activity']['hidden_size'],
+        num_layers=self.config['model']['hyper_param']['person_activity']['num_layers']
     ).to(self.device)
     
     self.person_lstm = load_checkpoint_model(

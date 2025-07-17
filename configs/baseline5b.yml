@@ -5,7 +5,7 @@ model:
        num_layers: 1
        
   num_classes: 
-    person_activity: 9s
+    person_activity: 9
     group_activity: 8
 
   num_clases_label:
