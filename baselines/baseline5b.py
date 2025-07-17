@@ -47,12 +47,12 @@ class Baseline5bTrainer():
     self.set_seed(self.config['experiment']['seed'])
     
     self.model = Group_Activity_Classifer_lstm(
-            person_feature_extraction=self.person_activity, 
+        person_feature_extraction=self.person_lstm, 
         num_classes=self.config['model']['num_classes']['group_activity']
         ).to(self.device)
     self.optimizer = torch.optim.AdamW(self.model.parameters(),
-                    lr= self.config['training']['learning_rate'],
-                    weight_decay=self.config['training']['weight_decay'])
+                    lr= self.config['training']['group_activity']['learning_rate'],
+                    weight_decay=self.config['training']['group_activity']['weight_decay'])
     self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='min', factor=0.1, patience=3, verbose=True ) 
     self.scaler = GradScaler()
     self.criterion = torch.nn.CrossEntropyLoss()

@@ -20,7 +20,7 @@ training:
     optimizer: "AdamW"
     weight_decay: 1
     
-ata:
+data:
   dataset_name: GroupActivityDataset
   data_dir: /kaggle/input/group-activity-recognition-volleyball
   annot_path: /kaggle/input/group-activity-recognition-volleyball/annot_all.pkl
