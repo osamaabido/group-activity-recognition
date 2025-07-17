@@ -65,7 +65,7 @@ class Baseline5bTrainer():
         yaml.dump(self.config, config_file)
     self.logger.info(f"Configuration saved to {config_save_path}")
 
-  def group_collate_fn(self , batch):
+  def concat(self , batch):
     
     clips, labels = zip(*batch)  
     
