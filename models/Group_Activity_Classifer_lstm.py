@@ -28,18 +28,18 @@ class Group_Activity_Classifer_lstm(nn.Module):
             nn.Linear(512, num_classes), 
         )
         
-        def forward(self , x):
-          batch_size , bounding_boxes ,seq_len , channels , height , width = x.shape
-          x = x.view(batch_size * bounding_boxes*seq_len, channels, height, width)
-          x1 = self.resent50(x)
-          x1 = x1.view(batch_size *bounding_boxes , seq_len, -1)
-          x2 , (h , c) = self.lstm(x1)
-          x = torch.cat([x1, x2], dim=2) 
-          x = x.contiguous()            
-          x = x[:, -1, :]                
-          x = x.view(batch_size, bounding_boxes, -1) 
-          x = self.pool(x)  
-          x = x.squeeze(dim=1) 
+    def forward(self , x):
+        batch_size , bounding_boxes ,seq_len , channels , height , width = x.shape
+        x = x.view(batch_size * bounding_boxes*seq_len, channels, height, width)
+        x1 = self.resent50(x)
+        x1 = x1.view(batch_size *bounding_boxes , seq_len, -1)
+        x2 , (h , c) = self.lstm(x1)
+        x = torch.cat([x1, x2], dim=2) 
+        x = x.contiguous()            
+        x = x[:, -1, :]                
+        x = x.view(batch_size, bounding_boxes, -1) 
+        x = self.pool(x)  
+        x = x.squeeze(dim=1) 
 
-          x = self.fc(x) 
-          return x
+        x = self.fc(x) 
+        return x

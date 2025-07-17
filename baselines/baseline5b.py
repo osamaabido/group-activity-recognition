@@ -16,7 +16,7 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from datetime import datetime
 from models.Group_Activity_Classifer_lstm import Group_Activity_Classifer_lstm
 from models.Lstmperson import LSTMPerson
-from dataloader.DataLoader import Person , Group , person_activity_labels
+from dataloader.DataLoader import Person , Group , person_activity_labels ,group_activity_labels
 from eval_utils import get_f1_score , plot_confusion_matrix
 from helper_utils import load_config, setup_logging, save_checkpoint_model , load_checkpoint_model
 
@@ -138,9 +138,10 @@ class Baseline5bTrainer():
             videos_path=self.config['data']['videos_path'],
             annot_path=self.config['data']['annot_path'],
             split=self.config['data']['video_splits']['train'],
-            labels=person_activity_labels,
+            labels=group_activity_labels,
+            crops = True,
             seq=True,
-             transform=train_transforms
+            transform=train_transforms
            
         )
 
@@ -148,7 +149,8 @@ class Baseline5bTrainer():
             videos_path=self.config['data']['videos_path'],
             annot_path=self.config['data']['annot_path'],
             split=self.config['data']['video_splits']['validation'],
-            labels=person_activity_labels,
+            labels=group_activity_labels,
+            crops = True,
             seq=True,
             transform=val_transforms
 
@@ -219,7 +221,7 @@ class Baseline5bTrainer():
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             self.exp_dir = os.path.join(
             f"{self.Project_Root}/training/baseline5a/{self.config['experiment']['output_dir']}",
-            f"{self.config['experiment']['name']}_V{self.config['experiment']['version']}_{self.timestamp}"
+            f"{self.config['experiment']['name']}_V{self.config['experiment']['version']}_{timestamp}"
             )
             os.makedirs(self.exp_dir, exist_ok=True)
             self.logger = setup_logging(self.exp_dir)
@@ -227,10 +229,10 @@ class Baseline5bTrainer():
             
         self.logger.info("Starting training...")
         
-        for epoch in range(self.config['training']['epochs']):
+        for epoch in range(self.config['training']['group_activity']['epochs']):
             self.model.train()
             total_loss, total_correct, total_samples = 0, 0, 0  
-            self.logger.info(f"Epoch {epoch + 1}/{self.config['training']['epochs']}")
+            self.logger.info(f"Epoch {epoch + 1}/{self.config['training']['group_activity']['epochs']}")
 
             for batch_idx, (images, labels) in enumerate(self.train_loader):
                 images, labels = images.to(self.device), labels.to(self.device)
