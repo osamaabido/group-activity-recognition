@@ -15,7 +15,7 @@ model:
 training:
   group_activity:
     batch_size: 8
-    learning_rate: 0.0001 # 1e-4
+    learning_rate: 0.00001 # 1e-4
     epochs: 35
     optimizer: "AdamW"
     weight_decay: 1
