@@ -1,25 +1,24 @@
 model:
-  hyper_param:
-    person_activity:
-       hidden_size: 128
+  hyber_param:
+    group_activity:
+       hidden_size: 512
        num_layers: 1
-       
   num_classes: 
     person_activity: 9
     group_activity: 8
-
-  num_classes_label:
+  
+  num_clases_label:
     person_activity: ["Waiting", "Setting", "Digging", "Falling", "Spiking", "Blocking", "Jumping", "Moving", "Standing"]
     group_activity: ["r_set", "r_spike" , "r-pass", "r_winpoint", "l_winpoint", "l-pass", "l-spike", "l_set"]
-
+  
 training:
   group_activity:
-    batch_size: 8
-    learning_rate: 0.00001 # 1e-4
+    batch_size: 32
+    learning_rate: 0.00001 
     epochs: 20
     optimizer: "AdamW"
-    weight_decay: 1
-    
+    weight_decay: 0.01 
+
 data:
   dataset_name: GroupActivityDataset
   data_dir: /kaggle/input/group-activity-recognition-volleyball
@@ -32,8 +31,8 @@ data:
     test: [4, 5, 9, 11, 14, 20, 21, 25, 29, 34, 35, 37, 43, 44, 45, 47]
 
 experiment:
-  name: "Baseline_B5_Step_A"
+  name: "Baseline_B6"
   version: 1
   seed: 31
   output_dir: "outputs"
-  description: "Baseline5B"
+  description: " Baseline B6 with using the trainer of baseline 3b" 
