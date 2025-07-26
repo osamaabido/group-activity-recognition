@@ -1,3 +1,4 @@
+
 import yaml 
 import os
 import sys 
@@ -25,16 +26,20 @@ class Baseline6Trainer():
     self.config = load_config(config_file_path)
     self.Project_root = Project_root
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    self.modela = Person_Activity_Classifer(self.config['model_params']).to(self.device)
+    self.modela = Person_Activity_Classifer(nums_classes=self.config['model']['num_classes']['person_activity'],
+    ).to(self.device)
     self.modelb = load_checkpoint_model(checkpoint_path=person_activity_checkpoints, model=self.modela, device=self.device , optimizer=None)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    self.exp-dir = os.path.join(f"{self.Project_root} / training/ baseline6 / {self . config['experiment']['output-dir']}", f"{self.config['experiment']['name']}_V {self.config['experiment']['version']}_{timestamp}")    
+    self.exp_dir = os.path.join(
+      f"{self.Project_root} / training/ baseline6 / {self.config['experiment']['output_dir']}", 
+      f"{self.config['experiment']['name']}_V{self.config['experiment']['version']}_{timestamp}")    
     
     os.makedirs(self.exp_dir, exist_ok=True)
     self.set_seed(self.config['experiment']['seed'])
     self.model = Group_Activity_Classifer_lstm(
-        person_feature_extraction=self.person_lstm, 
-        num_classes=self.config['model']['num_classes']['group_activity']
+        person_feature_extraction=self.modelb, 
+        hidden_size=self.config['model']['hyper_param']['group_activity']['hidden_size'],
+        num_classes=self.config['model']['num_classes']['group_activity'],
         ).to(self.device)
     
     self.optimizer = torch.optim.AdamW(self.model.parameters(),
