@@ -13,11 +13,11 @@ model:
   
 training:
   group_activity:
-    batch_size: 32
-    learning_rate: 0.00001 
+    batch_size: 16
+    learning_rate: 0.0001 
     epochs: 20
     optimizer: "AdamW"
-    weight_decay: 0.01 
+    weight_decay: 0.0001 
 
 data:
   dataset_name: GroupActivityDataset

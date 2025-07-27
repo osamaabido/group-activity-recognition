@@ -51,7 +51,7 @@ class Baseline6Trainer():
     self.logger = setup_logging(self.exp_dir)
     self.writer = SummaryWriter(log_dir=os.path.join(self.exp_dir, 'tensorboard'))
     self.train_loader, self.val_loader = self.prepare_data()
-    self.class_names = self.config['model']['num_classes_label']["group_activity"]
+    self.class_names = self.config['model']['num_clases_label']["group_activity"]
     config_save_path = os.path.join(self.exp_dir, 'config.yaml')
     with open(config_save_path, 'w') as config_file:
         yaml.dump(self.config, config_file)
@@ -172,7 +172,7 @@ class Baseline6Trainer():
         self.writer.add_scalar('Validation/Loss', avg_loss, epoch)
         self.writer.add_scalar('Validation/Accuracy', accuracy, epoch)
         self.writer.add_scalar('Validation/F1Score', f1_score, epoch)
-        self.writer.add_figure('Validation/ConfusionMatrix', plot_confusion_matrix( y_true, y_pred, class_names = self.config["model"]['num_classes_label']['group_activity'] , save_path = "/kaggle/working/"))
+        self.writer.add_figure('Validation/ConfusionMatrix', plot_confusion_matrix( y_true, y_pred, class_names = self.config["model"]['num_clases_label']['group_activity'] , save_path = "/kaggle/working/"))
 
         self.logger.info(f"Epoch {epoch} | Valid Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}% | F1 Score: {f1_score:.4f}")
         return avg_loss, accuracy
@@ -195,7 +195,7 @@ class Baseline6Trainer():
         else:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             self.exp_dir = os.path.join(
-            f"{self.Project_Root}/training/baseline5a/{self.config['experiment']['output_dir']}",
+            f"{self.Project_root}/training/baseline5a/{self.config['experiment']['output_dir']}",
             f"{self.config['experiment']['name']}_V{self.config['experiment']['version']}_{timestamp}"
             )
             os.makedirs(self.exp_dir, exist_ok=True)
