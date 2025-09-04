@@ -18,7 +18,7 @@ model:
 
 training:
   person_activity:
-    batch_size: 2
+    batch_size: 1
     learning_rate: 0.0003
     epochs: 15
     optimizer: "AdamW"
