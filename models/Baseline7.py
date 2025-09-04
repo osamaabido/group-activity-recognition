@@ -39,7 +39,7 @@ class Person_Activity_Temporal(nn.Module):
         batch , bounding_box, seq_len, c, h, w = x.shape
         x = x.view(batch * bounding_box * seq_len, c, h, w)
         x = self.resnet50(x)
-        x = x.view(batch, bounding_box, seq_len, -1)
+        x = x.view(batch * bounding_box, seq_len, -1)
         x = self.norm(x)
         x, _ = self.lstm(x)
         x = self.fc(x[:, -1])
