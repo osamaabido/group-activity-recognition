@@ -3,7 +3,6 @@ import albumentations as A
 import torchvision.models as models
 from albumentations.pytorch import ToTensorV2
 from torch.utils.data import DataLoader
-from torchsummary import summary
 
 
 class Group_Activity_Classifer(nn.Module):

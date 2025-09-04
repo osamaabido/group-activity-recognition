@@ -7,7 +7,7 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 import pickle
-from boxinfo import BoxInfo
+from .boxinfo import BoxInfo
 from pathlib import Path
 from typing import List, Tuple
 
@@ -357,4 +357,104 @@ class Group(Dataset):
              labels = torch.stack(labels)
 
              return clip, labels
+
+
+class HierarchicalDataLoader(Dataset):
+    def __init__(self , video_path : str , annot_path : str , labels :dict= {}, split : list = [] , transform = None):
+        super().__init__()
+        self.video_path = Path(video_path)
+        self.transform = transform
+        self.labels = labels
+
+        with open(annot_path, 'rb') as f:
+            self.annotations = pickle.load(f)
+
+        self.data = []
+
+        for cilp_id in split:
+            clip_dirs = self.annotations[str(cilp_id)]
+
+            for clip_dir in clip_dirs.keys():
+                category = clip_dirs[str(clip_dir)]['category']
+                frames_dir = list(clip_dirs[str(clip_dir)]['frame_boxes_dct'].items())
+
+                frames_data = []
+
+                for frame_id , boxes in frames_dir:
                     
+                    frame_path =  f"{video_path}/{str(cilp_id)}/{str(clip_dir)}/{frame_id}.jpg"
+                    frames_boxes = []
+                    for box in boxes:
+                        frames_boxes.append(box)
+
+                    frames_data.append((frame_path, frames_boxes))
+
+                self.data.append({
+                    'category': category,
+                    'frames_data': frames_data
+                })
+
+    def __len__(self):
+        return len(self.data)
+    
+    def get_box_center(self , box : BoxInfo):
+        x_min, y_min, x_max, y_max = box
+        x_center = (x_min + x_max) / 2
+
+        return  x_center
+    
+    def extract_person_crops(self, frame: np.ndarray, boxes: List[BoxInfo]):
+        crops = []
+        order = []
+        person_frame_labels = []
+
+        for box in boxes: 
+            x_min , y_min, x_max, y_max = box.box
+            x_center = self.get_box_center(box.box)
+
+            person_crop = frame[y_min:y_max, x_min:x_max]
+            
+            if self.transform:
+                transformed = self.transform(image=person_crop)
+                person_crop = transformed['image']
+
+            person_label = torch.zeros(len(self.labels['person']))
+            person_label[self.labels['person'][box.category]] = 1    
+            
+            crops.append(person_crop)
+            order.append(x_center)
+            person_frame_labels.append(person_label)
+        
+        return crops, order, person_frame_labels
+    
+    def __getitem__(self , idx):
+        sample = self.data[idx]
+        group_class  =  len(self.labels['group'])
+        group_label = torch.zeros(group_class) 
+        group_label[self.labels['group'][sample['category']]] = 1
+
+        clip = []
+        group_labels =[]
+        person_labels =[]
+
+        for frame_path , boxes in sample['farme_data']:
+            frame = cv2.imread(frame_path)
+
+            crops , order , person_frame_labels = self.extract_person_crops(frame, boxes)
+
+            sorted = sorted(zip(order , crops , person_frame_labels) , key = lambda pair : pair[0])
+            sorted_crops = [crop for order_value, crop, person_label in sorted]
+            sorted_person_labels = [person_label for order_value, crop, person_label in sorted]
+
+            crops = torch.stack(sorted_crops)
+            sorted_person_labels = torch.stack(sorted_person_labels)
+            person_labels.append(sorted_person_labels)
+
+            clip.append(crops)
+            group_labels.append(group_label)
+    
+        clip = torch.stack(clip).permute(1, 0, 2, 3, 4) 
+        group_labels = torch.stack(group_labels)
+        person_labels = torch.stack(person_labels).permute(1, 0, 2) 
+
+        return clip, person_labels, group_labels
