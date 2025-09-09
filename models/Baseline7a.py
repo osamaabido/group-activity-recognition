@@ -2,9 +2,6 @@ import os
 import torch 
 import torch.nn as nn
 import torchvision.models as models
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
-from torch.utils.data import DataLoader
 
 class Person_Activity_Temporal(nn.Module):
     def __init__(self , num_classes , hidden_size , num_layers):
