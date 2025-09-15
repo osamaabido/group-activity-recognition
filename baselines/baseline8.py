@@ -25,7 +25,7 @@ class Baseline_8_Trainer():
         self.config = load_config(config_file_path)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.modela = Person_Activity_Temporal(
-            num_classes = self.config['num_classes']['person_activity'],
+            num_classes = self.config['model']['num_classes']['person_activity'],
             hidden_size = self.config['model']['hyper_param']['person_activity']['hidden_size'],
             num_layers = self.config['model']['hyper_param']['person_activity']['num_layers']
         ).to(self.device)
@@ -47,7 +47,7 @@ class Baseline_8_Trainer():
 
         self.model =  Group_Activity_Temporal(
             person_feature_extraction= self.person_lstm,
-            num_classes = self.config['num_classes']['group_activity'],
+            num_classes = self.config['model']['num_classes']['group_activity'],
             hidden_size = self.config['model']['hyper_param']['group_activity']['hidden_size'],
             num_layers = self.config['model']['hyper_param']['group_activity']['num_layers']
         ).to(self.device)   
@@ -185,7 +185,7 @@ class Baseline_8_Trainer():
             self.writer.add_scalar('Validation/Loss', avg_loss, epoch)
             self.writer.add_scalar('Validation/Accuracy', accuracy, epoch)
             self.writer.add_scalar('Validation/F1Score', f1_score, epoch)
-            self.writer.add_figure('Validation/ConfusionMatrix', plot_confusion_matrix( y_true, y_pred, class_names = self.config["model"]['num_classes_label']['group_activity'] , save_path = "/kaggle/working/"))
+            self.writer.add_figure('Validation/ConfusionMatrix', plot_confusion_matrix( y_true, y_pred, class_names = self.config['model']['num_classes_label']['group_activity'] , save_path = "/kaggle/working/"))
 
             self.logger.info(f"Epoch {epoch} | Valid Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}% | F1 Score: {f1_score:.4f}")
             return avg_loss, accuracy
