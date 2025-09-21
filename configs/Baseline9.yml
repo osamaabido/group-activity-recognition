@@ -1,38 +1,23 @@
 model:
   hyper_param:
-    person_activity:
-       hidden_size: 512
-       num_layers: 1
-
-    group_activity:
-       hidden_size: 512
-       num_layers: 2
+    hidden_size: 512
+    num_layers: 2
 
   num_classes:
+
     person_activity: 9
     group_activity: 8
 
-  num_classes_label:
+  num_clases_label:
     person_activity: ["Waiting", "Setting", "Digging", "Falling", "Spiking", "Blocking", "Jumping", "Moving", "Standing"]
     group_activity: ["r_set", "r_spike" , "r-pass", "r_winpoint", "l_winpoint", "l-pass", "l-spike", "l_set"]
 
-
 training:
-  person_activity:
     batch_size: 2
-    learning_rate: 0.0002 
-    epochs: 25
+    learning_rate: 0.0000015
+    epochs: 40
     optimizer: "AdamW"
-    weight_decay: 0.1
-    label_smoothing: 0.1
-
-  group_activity:
-    batch_size: 8
-    learning_rate: 0.000002
-    epochs: 1
-    optimizer: "AdamW"
-    weight_decay: 1
-    label_smoothing: 0.00001
+    weight_decay: 0.5
 
 data:
   dataset_name: GroupActivityDataset
@@ -46,8 +31,9 @@ data:
     test: [4, 5, 9, 11, 14, 20, 21, 25, 29, 34, 35, 37, 43, 44, 45, 47]
 
 experiment:
-  name: "Baseline_B8"
+  name: "Baseline_B"
   version: 1
   seed: 31
   output_dir: "outputs"
-  description: "Baseline_B8 train both person and group activity temporal classifier"
+  description: "Baseline_B9 The baseline takes features of each person in a scene, combines spatial (appearance) and temporal (motion) information, then aggregates across all people to build a group representation. Finally, it models how this group representation changes over time to recognize the overall group activity" 
+    
