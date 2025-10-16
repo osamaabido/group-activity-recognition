@@ -397,11 +397,11 @@ class Baseline9Trainer:
                 # save best
                 if val_acc > best_val_acc:
                     best_val_acc = val_acc
-                    save_checkpoint(self.model.module if hasattr(self.model, 'module') else self.model,
+                    save_checkpoint_model(self.model.module if hasattr(self.model, 'module') else self.model,
                                     self.optimizer, epoch, val_acc, self.config, self.exp_dir, is_best=True)
 
                 # save latest
-                save_checkpoint(self.model.module if hasattr(self.model, 'module') else self.model,
+                save_checkpoint_model(self.model.module if hasattr(self.model, 'module') else self.model,
                                 self.optimizer, epoch, val_acc, self.config, self.exp_dir, is_best=False)
 
                 # log lr
@@ -420,27 +420,26 @@ class Baseline9Trainer:
         cleanup_ddp()
 
 
-def _spawn_worker(local_rank, world_size, config_path, project_root):
-    """
-    Function executed per-process by mp.spawn
-    """
+def _spawn_worker(local_rank, config_path, project_root, world_size):
     trainer = Baseline9Trainer(config_path, project_root, local_rank, world_size)
-    trainer.train(checkpoint_path=None)  # or pass path if resume
+    trainer.train(checkpoint_path=None)
+
 
 
 def main():
-    config_path = "/kaggle/working/group-activity-recognition/configs/Baseline9.yml" , # set this
-    project_root=r"/kaggle/working/group-activity-recognition",
+    config_path = r"/kaggle/working/group-activity-recognition/configs/Baseline9.yml"  # set this
+    project_root = r"/kaggle/working/group-activity-recognition",
     world_size = torch.cuda.device_count()
     if world_size == 0:
         raise RuntimeError("No GPUs found for DDP. Found 0 GPUs.")
 
     mp.spawn(
         _spawn_worker,
-        args=(world_size, config_path, project_root),
+        args=(config_path, project_root, world_size),
         nprocs=world_size,
         join=True
-    )
+)
+
 
 if __name__ == "__main__":
     main()
