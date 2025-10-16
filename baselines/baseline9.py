@@ -216,7 +216,7 @@ class Baseline9Trainer:
             train_dataset,
             batch_size=self.config['training']['batch_size'],
             sampler=train_sampler,
-            num_workers=4,
+            num_workers=0,
             collate_fn=self.concat,
             pin_memory=True
         )
@@ -224,7 +224,7 @@ class Baseline9Trainer:
             val_dataset,
             batch_size=self.config['training']['batch_size'],
             sampler=val_sampler,
-            num_workers=4,
+            num_workers=0,
             collate_fn=self.concat,
             pin_memory=True
         )
