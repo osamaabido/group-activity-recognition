@@ -1,0 +1,75 @@
+import torch 
+import torch.nn as nn
+import torchvision.models as models
+
+
+class Two_stage_Hierarchical(nn.Module):
+    def __init__(self ,num_classes_person , num_classes_group , hidden_size ,num_layers ):
+        super(Two_stage_Hierarchical, self).__init__()
+        
+        self.resnet50 = nn.Sequential(
+            *list(models.resnet50(weights=models.ResNet50_Weights.DEFAULT).children())[:-1]
+        )
+
+        self.norm = nn.LayerNorm(2048)
+
+        self.lstm = nn.LSTM(
+            input_size = 2048,
+            hidden_size = hidden_size,
+            num_layers = num_layers,
+            batch_first = True,
+            dropout = 0.5
+        )
+
+        self.fc_person = nn.Sequential(
+            nn.Linear(hidden_size, 512),
+            nn.LayerNorm(512),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(512, 256),
+            nn.LayerNorm(256),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(256, num_classes_person)
+        )
+
+        self.pool = nn.AdaptiveMaxPool2d((1, 2048))
+
+        self.fc_group = nn.Sequential(
+            nn.Linear(hidden_size, 512),
+            nn.LayerNorm(512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(512, 256),
+            nn.LayerNorm(256),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(256, num_classes_group)
+        )
+
+    def forward(self, x):
+        batch , bounding_box, seq_len , c, h ,w = x.shape
+        x = x.view(batch * bounding_box * seq_len, c, h, w)
+
+        x1 = self.resnet50(x)
+        x1 = x1.view(batch * bounding_box, seq_len, -1)
+        x1 = self.norm(x1)
+
+        x2, _ = self.lstm(x1)
+        x_person = self.fc_person(x2[:, -1 , :])
+
+        x = torch.cat((x1, x2), dim=2).contiguous()
+
+        x = x.view(batch * seq_len, bounding_box, -1)
+        first_team = x[:, :6, :]
+        second_team = x[:, 6:, :]
+
+        first_team = self.pool(first_team)
+        second_team = self.pool(second_team)
+
+        x = torch.cat((first_team, second_team), dim=2).contiguous()
+        x = x.view(batch, seq_len, -1)
+        x = self.norm(x)
+        x, _ = self.lstm(x)
+        x_group = self.fc_group(x[:, -1 , :])
+        return f"the person output is {x_person}, the group output is {x_group}"

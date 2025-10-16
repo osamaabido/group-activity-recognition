@@ -4,11 +4,10 @@ model:
     num_layers: 2
 
   num_classes:
-
     person_activity: 9
     group_activity: 8
 
-  num_clases_label:
+  num_classes_label:
     person_activity: ["Waiting", "Setting", "Digging", "Falling", "Spiking", "Blocking", "Jumping", "Moving", "Standing"]
     group_activity: ["r_set", "r_spike" , "r-pass", "r_winpoint", "l_winpoint", "l-pass", "l-spike", "l_set"]
 
