@@ -308,7 +308,7 @@ class Baseline9Trainer:
             if self.local_rank == 0 and self.logger:
                 self.logger.info(f"Resumed training from epoch {start_epoch}")
 
-        num_epochs = self.config['training']['group_activity']['epochs']
+        num_epochs = self.config['training']['epochs']
         for epoch in range(start_epoch, num_epochs):
             # set epoch for DistributedSampler
             if hasattr(self, 'train_sampler') and self.train_sampler is not None:
