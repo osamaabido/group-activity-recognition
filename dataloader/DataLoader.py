@@ -360,9 +360,9 @@ class Group(Dataset):
 
 
 class HierarchicalDataLoader(Dataset):
-    def __init__(self , video_path : str , annot_path : str , labels :dict= {}, split : list = [] , transform = None):
+    def __init__(self , videos_path : str , annot_path : str , labels :dict= {}, split : list = [] , transform = None):
         super().__init__()
-        self.video_path = Path(video_path)
+        self.videos_path = Path(videos_path)
         self.transform = transform
         self.labels = labels
 
@@ -381,8 +381,8 @@ class HierarchicalDataLoader(Dataset):
                 frames_data = []
 
                 for frame_id , boxes in frames_dir:
-                    
-                    frame_path =  f"{video_path}/{str(cilp_id)}/{str(clip_dir)}/{frame_id}.jpg"
+
+                    frame_path =  f"{self.videos_path}/{str(cilp_id)}/{str(clip_dir)}/{frame_id}.jpg"
                     frames_boxes = []
                     for box in boxes:
                         frames_boxes.append(box)
