@@ -1,3 +1,5 @@
+
+
 import os
 import yaml
 import random
@@ -18,7 +20,6 @@ import torch.multiprocessing as mp
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-# افترض أن الملفات التالية موجودة وتحتوي على الدوال/كلاسات المطلوبة
 from models import Two_stage_Hierarchical
 from dataloader.DataLoader import HierarchicalDataLoader, activities_labels
 from eval_utils import get_f1_score, plot_confusion_matrix
@@ -428,8 +429,8 @@ def _spawn_worker(local_rank, world_size, config_path, project_root):
 
 
 def main():
-    config_path = "path/to/config.yaml"  # set this
-    project_root = "/path/to/project"  # set this
+    config_path = "/kaggle/working/group-activity-recognition/configs/Baseline9.yml" , # set this
+    project_root=r"/kaggle/working/group-activity-recognition",
     world_size = torch.cuda.device_count()
     if world_size == 0:
         raise RuntimeError("No GPUs found for DDP. Found 0 GPUs.")
