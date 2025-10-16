@@ -55,8 +55,8 @@ class Baseline9Trainer:
 
         # model
         self.model = Two_stage_Hierarchical(
-            person_num_classes=self.config['model']['num_classes']['person_activity'],
-            group_num_classes=self.config['model']['num_classes']['group_activity'],
+            num_classes_person=self.config['model']['num_classes']['person_activity'],
+            num_classes_group=self.config['model']['num_classes']['group_activity'],
             hidden_size=self.config['model']['hyper_param']['hidden_size'],
             num_layers=self.config['model']['hyper_param']['num_layers']
         ).to(self.device)
