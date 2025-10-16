@@ -11,9 +11,14 @@ class Two_stage_Hierarchical(nn.Module):
             *list(models.resnet50(weights=models.ResNet50_Weights.DEFAULT).children())[:-1]
         )
 
-        self.norm_feat = nn.LayerNorm(2048)   
-        self.norm_group = nn.LayerNorm(4096) 
-        self.lstm = nn.LSTM(
+        # stage 1 normalization (person-level)
+        self.norm_feat = nn.LayerNorm(2048)
+
+        # stage 2 normalization (group-level)
+        self.norm_group = nn.LayerNorm(4096)
+
+        # LSTM stage 1 (person-level)
+        self.lstm_person = nn.LSTM(
             input_size=2048,
             hidden_size=hidden_size,
             num_layers=num_layers,
@@ -21,6 +26,16 @@ class Two_stage_Hierarchical(nn.Module):
             dropout=0.5
         )
 
+        # LSTM stage 2 (group-level)
+        self.lstm_group = nn.LSTM(
+            input_size=4096,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=0.5
+        )
+
+        # Person-level classifier
         self.fc_person = nn.Sequential(
             nn.Linear(hidden_size, 512),
             nn.LayerNorm(512),
@@ -35,6 +50,7 @@ class Two_stage_Hierarchical(nn.Module):
 
         self.pool = nn.AdaptiveMaxPool2d((1, 2048))
 
+        # Group-level classifier
         self.fc_group = nn.Sequential(
             nn.Linear(hidden_size, 512),
             nn.LayerNorm(512),
@@ -56,7 +72,7 @@ class Two_stage_Hierarchical(nn.Module):
         x1 = x1.view(batch * bounding_box, seq_len, -1)
         x1 = self.norm_feat(x1)
 
-        x2, _ = self.lstm(x1)
+        x2, _ = self.lstm_person(x1)
         x_person = self.fc_person(x2[:, -1, :])
 
         # Stage 2: group representation
@@ -71,7 +87,7 @@ class Two_stage_Hierarchical(nn.Module):
         x = torch.cat((first_team, second_team), dim=2).contiguous()
         x = x.view(batch, seq_len, -1)
         x = self.norm_group(x)
-        x, _ = self.lstm(x)
+        x, _ = self.lstm_group(x)
         x_group = self.fc_group(x[:, -1, :])
 
         return x_person, x_group
