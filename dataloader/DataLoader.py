@@ -341,20 +341,19 @@ class Group(Dataset):
              for frame_path, boxes in sample['frames_data']:
                 frame = cv2.imread(frame_path)
                 
-                if self.sort:
-                    crops, order, person_frame_labels = self.extract_person_crops(frame, boxes)
+                if self.sort: # if sort true then sort player crops by player x-axis positions
+                    crops, order = self.extract_person_crops(frame, boxes) 
                     frames.append(frame)
-                    # استخدم اسم مختلف عشان ما نكسرش الدالة built-in
-                    sorted_items = sorted(zip(order, crops, person_frame_labels), key=lambda pair: pair[0])
-                    crops = torch.stack([crop for _, crop, _ in sorted_items])
-                    person_frame_labels = [person_label for _, _, person_label in sorted_items]
+                    crops = [crop for order_value, crop in sorted(zip(order, crops), key=lambda pair: pair[0])] 
+                    crops = torch.stack(crops)
                 else:
-                    crops, _, person_frame_labels = self.extract_person_crops(frame, boxes)
-                    if isinstance(crops, list):  # تأكد إن crops Tensor
-                        crops = torch.stack(crops)
+                    crops = self.extract_person_crops(frame, boxes)     
 
-             # Rearrange dimensions to (12, 9, C, H, W) for clip_frames_tensor
-             clip = torch.stack(clip).permute(1, 0, 2, 3, 4)
+                clip.append(crops)
+                labels.append(label)
+
+             # Rearrange dimensions to (12, 9, C, H, W) for clip_frames_tensor  
+             clip = torch.stack(clip).permute(1, 0, 2, 3, 4) 
              labels = torch.stack(labels)
 
              return clip, labels
@@ -428,34 +427,53 @@ class HierarchicalDataLoader(Dataset):
         
         return crops, order, person_frame_labels
     
-    def __getitem__(self , idx):
+    def __getitem__(self, idx):
         sample = self.data[idx]
-        group_class  =  len(self.labels['group'])
-        group_label = torch.zeros(group_class) 
+        group_class = len(self.labels['group'])
+        group_label = torch.zeros(group_class)
         group_label[self.labels['group'][sample['category']]] = 1
 
         clip = []
-        group_labels =[]
-        person_labels =[]
+        group_labels = []
+        person_labels = []
 
-        for frame_path , boxes in sample['frames_data']:
+        for frame_path, boxes in sample['frames_data']:
             frame = cv2.imread(frame_path)
+            if frame is None:
+                continue  # لو الصورة ناقصة أو corrupt
 
-            crops , order , person_frame_labels = self.extract_person_crops(frame, boxes)
+            crops, order, person_frame_labels = self.extract_person_crops(frame, boxes)
 
-            sorted = sorted(zip(order , crops , person_frame_labels) , key = lambda pair : pair[0])
-            sorted_crops = [crop for order_value, crop, person_label in sorted]
-            sorted_person_labels = [person_label for order_value, crop, person_label in sorted]
+            # لو مفيش أي شخص detected في الفريم → نعدي الفريم ده
+            if len(crops) == 0:
+                continue
 
-            crops = torch.stack(sorted_crops)
-            sorted_person_labels = torch.stack(sorted_person_labels)
+            # سورت الأفراد حسب ترتيبهم الأفقي
+            sorted_items = sorted(zip(order, crops, person_frame_labels), key=lambda pair: pair[0])
+
+            # لو برضه فاضية لأي سبب → نعدي الفريم
+            if len(sorted_items) == 0:
+                continue
+
+            sorted_crops = [crop for _, crop, _ in sorted_items]
+            sorted_person_labels = [person_label for _, _, person_label in sorted_items]
+
+            try:
+                crops = torch.stack(sorted_crops)
+                sorted_person_labels = torch.stack(sorted_person_labels)
+            except Exception as e:
+                print(f"[Warning] Skipping frame {frame_path} due to stacking error: {e}")
+                continue
+
             person_labels.append(sorted_person_labels)
-
             clip.append(crops)
             group_labels.append(group_label)
-    
-        clip = torch.stack(clip).permute(1, 0, 2, 3, 4) 
+
+        if len(clip) == 0:
+            return None, None, None
+
+        clip = torch.stack(clip).permute(1, 0, 2, 3, 4)
         group_labels = torch.stack(group_labels)
-        person_labels = torch.stack(person_labels).permute(1, 0, 2) 
+        person_labels = torch.stack(person_labels).permute(1, 0, 2)
 
         return clip, person_labels, group_labels
