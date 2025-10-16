@@ -437,7 +437,7 @@ class HierarchicalDataLoader(Dataset):
         group_labels =[]
         person_labels =[]
 
-        for frame_path , boxes in sample['farme_data']:
+        for frame_path , boxes in sample['frame_data']:
             frame = cv2.imread(frame_path)
 
             crops , order , person_frame_labels = self.extract_person_crops(frame, boxes)
