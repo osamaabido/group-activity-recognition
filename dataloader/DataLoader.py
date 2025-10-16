@@ -341,19 +341,20 @@ class Group(Dataset):
              for frame_path, boxes in sample['frames_data']:
                 frame = cv2.imread(frame_path)
                 
-                if self.sort: # if sort true then sort player crops by player x-axis positions
-                    crops, order = self.extract_person_crops(frame, boxes) 
+                if self.sort:
+                    crops, order, person_frame_labels = self.extract_person_crops(frame, boxes)
                     frames.append(frame)
-                    crops = [crop for order_value, crop in sorted(zip(order, crops), key=lambda pair: pair[0])] 
-                    crops = torch.stack(crops)
+                    # استخدم اسم مختلف عشان ما نكسرش الدالة built-in
+                    sorted_items = sorted(zip(order, crops, person_frame_labels), key=lambda pair: pair[0])
+                    crops = torch.stack([crop for _, crop, _ in sorted_items])
+                    person_frame_labels = [person_label for _, _, person_label in sorted_items]
                 else:
-                    crops = self.extract_person_crops(frame, boxes)     
+                    crops, _, person_frame_labels = self.extract_person_crops(frame, boxes)
+                    if isinstance(crops, list):  # تأكد إن crops Tensor
+                        crops = torch.stack(crops)
 
-                clip.append(crops)
-                labels.append(label)
-
-             # Rearrange dimensions to (12, 9, C, H, W) for clip_frames_tensor  
-             clip = torch.stack(clip).permute(1, 0, 2, 3, 4) 
+             # Rearrange dimensions to (12, 9, C, H, W) for clip_frames_tensor
+             clip = torch.stack(clip).permute(1, 0, 2, 3, 4)
              labels = torch.stack(labels)
 
              return clip, labels
