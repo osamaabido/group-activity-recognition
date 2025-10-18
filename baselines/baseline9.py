@@ -397,12 +397,24 @@ class Baseline9Trainer:
                 # save best
                 if val_acc > best_val_acc:
                     best_val_acc = val_acc
-                    save_checkpoint_model(self.model.module if hasattr(self.model, 'module') else self.model,
-                                    self.optimizer, epoch, val_acc, self.config, self.exp_dir)
+                    save_checkpoint_model(
+                        self.model.module if hasattr(self.model, 'module') else self.model,
+                        self.optimizer,
+                        epoch,
+                        val_acc,
+                        self.config,
+                        self.exp_dir if isinstance(self.exp_dir, str) else self.exp_dir["exp_dir"]  
+                    )
 
                 # save latest
-                save_checkpoint_model(self.model.module if hasattr(self.model, 'module') else self.model,
-                                self.optimizer, epoch, val_acc, self.config, self.exp_dir)
+                save_checkpoint_model(
+                    self.model.module if hasattr(self.model, 'module') else self.model,
+                    self.optimizer,
+                    epoch,
+                    val_acc,
+                    self.config,
+                    self.exp_dir if isinstance(self.exp_dir, str) else self.exp_dir["exp_dir"]  
+                )
 
                 # log lr
                 current_lr = self.optimizer.param_groups[0]['lr']
