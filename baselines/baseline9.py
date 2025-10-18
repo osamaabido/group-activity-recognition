@@ -427,8 +427,8 @@ def _spawn_worker(local_rank, config_path, project_root, world_size):
 
 
 def main():
-    config_path = r"/kaggle/working/group-activity-recognition/configs/Baseline9.yml"  # set this
-    project_root = r"/kaggle/working/group-activity-recognition",
+    config_path = r"/kaggle/working/group-activity-recognition/configs/Baseline9.yml"  
+    project_root = r"/kaggle/working/group-activity-recognition"
     world_size = torch.cuda.device_count()
     if world_size == 0:
         raise RuntimeError("No GPUs found for DDP. Found 0 GPUs.")
