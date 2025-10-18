@@ -244,7 +244,7 @@ class Baseline9Trainer:
                 person_labels = person_labels.to(self.device)
                 group_labels = group_labels.to(self.device)
 
-                with autocast():
+                with autocast('cuda'):
                     person_outputs, group_outputs = self.model(inputs)  # adapt to model return
                     group_loss = self.group_criterion(group_outputs, group_labels.argmax(dim=1))
                     person_loss = self.person_criterion(
@@ -355,7 +355,7 @@ class Baseline9Trainer:
                 total += batch_total
 
                 if batch_idx % 100 == 0 and self.local_rank == 0 and self.logger:
-                    avg_loss_so_far = epoch_loss / (batch_idx + 1e-9)
+                    avg_loss_so_far = epoch_loss / (batch_idx + 1e-8)
                     # compute approx accuracy across this process only (for logging)
                     acc_so_far = 100.0 * correct / (total if total > 0 else 1)
                     step = epoch * len(self.train_loader) + batch_idx
@@ -398,11 +398,11 @@ class Baseline9Trainer:
                 if val_acc > best_val_acc:
                     best_val_acc = val_acc
                     save_checkpoint_model(self.model.module if hasattr(self.model, 'module') else self.model,
-                                    self.optimizer, epoch, val_acc, self.config, self.exp_dir, is_best=True)
+                                    self.optimizer, epoch, val_acc, self.config, self.exp_dir)
 
                 # save latest
                 save_checkpoint_model(self.model.module if hasattr(self.model, 'module') else self.model,
-                                self.optimizer, epoch, val_acc, self.config, self.exp_dir, is_best=False)
+                                self.optimizer, epoch, val_acc, self.config, self.exp_dir)
 
                 # log lr
                 current_lr = self.optimizer.param_groups[0]['lr']
