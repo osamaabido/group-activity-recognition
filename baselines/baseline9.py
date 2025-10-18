@@ -244,7 +244,7 @@ class Baseline9Trainer:
                 person_labels = person_labels.to(self.device)
                 group_labels = group_labels.to(self.device)
 
-                with autocast('cuda'):
+                with autocast(dtype=torch.float16):
                     person_outputs, group_outputs = self.model(inputs)  # adapt to model return
                     group_loss = self.group_criterion(group_outputs, group_labels.argmax(dim=1))
                     person_loss = self.person_criterion(
