@@ -402,19 +402,14 @@ class Baseline9Trainer:
                         self.optimizer,
                         epoch,
                         val_acc,
+                        self.exp_dir,
                         self.config,
-                        self.exp_dir if isinstance(self.exp_dir, str) else self.exp_dir["exp_dir"]  
+                        best_model=True
                     )
 
                 # save latest
-                save_checkpoint_model(
-                    self.model.module if hasattr(self.model, 'module') else self.model,
-                    self.optimizer,
-                    epoch,
-                    val_acc,
-                    self.config,
-                    self.exp_dir if isinstance(self.exp_dir, str) else self.exp_dir["exp_dir"]  
-                )
+                save_checkpoint_model(self.model.module if hasattr(self.model, 'module') else self.model,
+                                      self.optimizer, epoch, val_acc, self.exp_dir, self.config)
 
                 # log lr
                 current_lr = self.optimizer.param_groups[0]['lr']
