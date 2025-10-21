@@ -429,14 +429,13 @@ class Baseline9Trainer:
 
 def _spawn_worker(local_rank, config_path, project_root, world_size):
     trainer = Baseline9Trainer(config_path, project_root, local_rank, world_size)
-    trainer.train(checkpoint_path=None)
+    trainer.train(checkpoint_path = r"/kaggle/input/baseline9/other/default/1/checkpoint_epoch _ 31.pkl")
 
 
 
 def main():
     config_path = r"/kaggle/working/group-activity-recognition/configs/Baseline9.yml"  
     project_root = r"/kaggle/working/group-activity-recognition"
-    checkpoint_path = r"/kaggle/input/baseline9/other/default/1/checkpoint_epoch _ 31.pkl"
     world_size = torch.cuda.device_count()
     if world_size == 0:
         raise RuntimeError("No GPUs found for DDP. Found 0 GPUs.")
