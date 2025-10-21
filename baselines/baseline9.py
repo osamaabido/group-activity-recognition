@@ -1,5 +1,6 @@
 
 
+from distutils import config
 import os
 import yaml
 import random
@@ -299,17 +300,30 @@ class Baseline9Trainer:
         start_epoch = 0
         best_val_acc = -1.0
 
-        # optionally resume
         if checkpoint_path:
-            device = self.device
-            model_state, optim_state, loaded_config, exp_dir_loaded, start_epoch = load_checkpoint_model(
-                checkpoint_path, self.model, self.optimizer, device
+            self.model, optimizer_old, loaded_config, exp_dir, start_epoch = load_checkpoint_model(
+                checkpoint_path, self.model, self.optimizer, self.device
             )
-            if self.local_rank == 0 and self.logger:
-                self.logger.info(f"Resumed training from epoch {start_epoch}")
+            
+            if self.local_rank == 0:
+                logger = setup_logging(exp_dir) 
+                logger.info(f"Resumed training from epoch {start_epoch}")
+            else:
+                logger = None
+            
+        else:
+            timestamp = datetime.now().strftime('%Y_%m_%d_%H_%M')
+            exp_dir = os.path.join(
+                f"{self.Project_root}/modeling/baseline 9 (end to end)/{config['experiment']['output_dir']}",
+                f"{config['experiment']['name']}_V{config['experiment']['version']}_{timestamp}"
+            )
+            
+            if self.local_rank == 0:
+                os.makedirs(exp_dir, exist_ok=True)
+                logger = setup_logging(exp_dir)
+            else:
+                logger = None
 
-                
-        self.model = DDP(self.model, device_ids=[self.local_rank])
         num_epochs = self.config['training']['epochs']
         for epoch in range(start_epoch, num_epochs):
             # set epoch for DistributedSampler
@@ -433,7 +447,7 @@ def _spawn_worker(local_rank, config_path, project_root, world_size):
     trainer = Baseline9Trainer(config_path, project_root, local_rank, world_size)
     trainer.train(checkpoint_path = r"/kaggle/input/baseline9/other/default/1/checkpoint_epoch _ 31.pkl")
 
-        
+
 
 def main():
     config_path = r"/kaggle/working/group-activity-recognition/configs/Baseline9.yml"  
