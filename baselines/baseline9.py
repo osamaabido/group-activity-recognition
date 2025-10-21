@@ -308,6 +308,8 @@ class Baseline9Trainer:
             if self.local_rank == 0 and self.logger:
                 self.logger.info(f"Resumed training from epoch {start_epoch}")
 
+                
+        self.model = DDP(self.model, device_ids=[self.local_rank])
         num_epochs = self.config['training']['epochs']
         for epoch in range(start_epoch, num_epochs):
             # set epoch for DistributedSampler
@@ -431,7 +433,7 @@ def _spawn_worker(local_rank, config_path, project_root, world_size):
     trainer = Baseline9Trainer(config_path, project_root, local_rank, world_size)
     trainer.train(checkpoint_path = r"/kaggle/input/baseline9/other/default/1/checkpoint_epoch _ 31.pkl")
 
-
+        
 
 def main():
     config_path = r"/kaggle/working/group-activity-recognition/configs/Baseline9.yml"  
