@@ -1,6 +1,4 @@
 
-
-from distutils import config
 import os
 import yaml
 import random
@@ -314,8 +312,8 @@ class Baseline9Trainer:
         else:
             timestamp = datetime.now().strftime('%Y_%m_%d_%H_%M')
             exp_dir = os.path.join(
-                f"{self.Project_root}/modeling/baseline 9 (end to end)/{config['experiment']['output_dir']}",
-                f"{config['experiment']['name']}_V{config['experiment']['version']}_{timestamp}"
+                f"{self.Project_root}/modeling/baseline 9 (end to end)/{self.config['experiment']['output_dir']}",
+                f"{self.config['experiment']['name']}_V{self.config['experiment']['version']}_{timestamp}"
             )
             
             if self.local_rank == 0:
