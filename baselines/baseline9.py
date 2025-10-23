@@ -292,8 +292,7 @@ class Baseline9Trainer:
         return avg_loss, accuracy, 0.0
 
     def train(self, checkpoint_path=None):
-        # wrap model with DDP after it's on correct device
-        self.model = DDP(self.model, device_ids=[self.local_rank])
+        
 
         start_epoch = 0
         best_val_acc = -1.0
@@ -321,6 +320,9 @@ class Baseline9Trainer:
                 logger = setup_logging(exp_dir)
             else:
                 logger = None
+
+        # wrap model with DDP after it's on correct device
+        self.model = DDP(self.model, device_ids=[self.local_rank])
 
         num_epochs = self.config['training']['epochs']
         for epoch in range(start_epoch, num_epochs):

@@ -59,59 +59,67 @@ def plot_learning_curves(train_loss, val_loss, train_acc, val_acc, train_f1, val
     plt.savefig(save_path)
     plt.close()
 
-def save_classification_report(labels, predictions, class_names, save_path):
-    """Generate and save classification report to a text file."""
-    report = classification_report(labels, predictions, target_names=class_names)
-    with open(save_path, 'w') as f:
-        f.write(report)
-    print(f'Classification report saved at {save_path}')
 
-def compute_metrics(labels, predictions):
-    """Compute classification metrics."""
-    metrics = {
-        'accuracy': accuracy_score(labels, predictions),
-        'f1_weighted': f1_score(labels, predictions, average='weighted'),
-        'f1_macro': f1_score(labels, predictions, average='macro'),
-        'f1_micro': f1_score(labels, predictions, average='micro'),
-    }
-    return metrics
+
     
 
 
-def model_eval(model , data_loader , criterion = None ,device =None ,  path ="" , classes_name = None ):
-    model.eval()
-    y_true=[]
-    y_pred=[]
-    loss = 0.0
-    with torch.no_grad():
-        for inputs , targets in data_loader:
-            inputs , targets = inputs.to(device) , targets.to(device)
+def model_eval(model, data_loader, criterion=None, path="", device=None, prefix=None, class_names=None):
+    """
+    Evaluate the model and compute metrics like accuracy, loss, F1 score, and save confusion matrix.
+
+    Args:
+    - model: PyTorch model to evaluate.
+    - data_loader: DataLoader for the dataset.
+    - criterion: Loss function (optional).
+    - device: Device to use for computation ('cpu' or 'cuda').
+    - prefix: Title or prefix for printed metrics.
+    - class_names: List of class names for classification.
+
+    Returns:
+    - metrics: Dictionary containing loss, accuracy, and F1 score.
+    """
+    model.eval()  
+    y_true = []
+    y_pred = []
+    total_loss = 0.0
+
+    with torch.no_grad(): 
+        for inputs, targets in data_loader:
+            inputs, targets = inputs.to(device), targets.to(device)
+            
             outputs = model(inputs)
+            
             if criterion:
-                loss += criterion(outputs , targets).item()
+                loss = criterion(outputs, targets)
+                total_loss += loss.item()
+            
             _, predicted = outputs.max(1)
             _, target_class = targets.max(1)
+            
             y_true.extend(target_class.cpu().numpy())
             y_pred.extend(predicted.cpu().numpy())
-    report_dict = classification_report(y_true, y_pred, target_names=classes_name, output_dict=True)
+
+    report_dict = classification_report(y_true, y_pred, target_names=class_names, output_dict=True)
     if isinstance(report_dict, dict):
         accuracy = report_dict["accuracy"] * 100
  
-    avg_loss = loss / len(data_loader) if criterion else None
+    avg_loss = total_loss / len(data_loader) if criterion else None
     f1 = f1_score(y_true, y_pred, average='weighted')
 
     print("\n" + "=" * 50)
+    print(f"{prefix}")
     print("=" * 50)
     print(f"Accuracy : {accuracy:.2f}%")
     if criterion:
         print(f"Average Loss: {avg_loss:.4f}")
     print(f"F1 Score (Weighted): {f1:.4f}")
     print("\nClassification Report:")
-    print(classification_report(y_true, y_pred, target_names=classes_name))
+    print(classification_report(y_true, y_pred, target_names=class_names))
 
-    if classes_name:
-        save_path = f"{path}/Group Activity Test Set Classification Report_confusion_matrix.png"
-        plot_confusion_matrix(y_true, y_pred, class_names=classes_name, save_path=save_path)
+    if class_names:
+        save_path = f"{path}/{prefix.replace(' ', '_')}_confusion_matrix.png"
+        plot_confusion_matrix(y_true, y_pred, class_names=class_names, save_path=save_path)
     
     metrics = {
         "accuracy": accuracy,
@@ -120,3 +128,4 @@ def model_eval(model , data_loader , criterion = None ,device =None ,  path ="" 
         "classification_report": report_dict,
     }
     return metrics
+    
