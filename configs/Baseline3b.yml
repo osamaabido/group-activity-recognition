@@ -16,6 +16,8 @@ training:
   optimizer: "AdamW"
   weight_decay: 0.01
 
+
+
 data:
   dataset_name: GroupActivityDataset
   data_dir: /kaggle/input/group-activity-recognition-volleyball
