@@ -11,10 +11,10 @@ from torch.utils.data import Dataset, DataLoader
 class Group_Activity_Classifer_lstm(nn.Module):
     def __init__(self , person_feature_extraction , num_classes):
         super(Group_Activity_Classifer_lstm, self).__init__()
-        self.resent50 = person_feature_extraction.resnet50
+        self.resnet50 = person_feature_extraction.resnet50
         self.lstm = person_feature_extraction.lstm
-        
-        for module in [self.resent50, self.lstm]:
+
+        for module in [self.resnet50, self.lstm]:
             for param in module.parameters():
                 param.requires_grad = False
         
@@ -31,7 +31,7 @@ class Group_Activity_Classifer_lstm(nn.Module):
     def forward(self , x):
         batch_size , bounding_boxes ,seq_len , channels , height , width = x.shape
         x = x.view(batch_size * bounding_boxes*seq_len, channels, height, width)
-        x1 = self.resent50(x)
+        x1 = self.resnet50(x)
         x1 = x1.view(batch_size *bounding_boxes , seq_len, -1)
         x2 , (h , c) = self.lstm(x1)
         x = torch.cat([x1, x2], dim=2) 
