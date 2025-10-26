@@ -12,9 +12,9 @@ model:
     group_activity: ["r_set", "r_spike" , "r-pass", "r_winpoint", "l_winpoint", "l-pass", "l-spike", "l_set"]
 
 training:
-    batch_size: 2
+    batch_size: 4
     learning_rate: 0.0000015
-    epochs: 70
+    epochs: 75
     optimizer: "AdamW"
     weight_decay: 0.5
 
