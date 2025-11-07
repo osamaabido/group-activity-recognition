@@ -445,7 +445,7 @@ class Baseline9Trainer:
 
 def _spawn_worker(local_rank, config_path, project_root, world_size):
     trainer = Baseline9Trainer(config_path, project_root, local_rank, world_size)
-    trainer.train(checkpoint_path = r"/kaggle/input/baseline9/other/default/1/checkpoint_epoch _ 31.pkl")
+    trainer.train(checkpoint_path = r"/kaggle/input/baseline9-2/other/default/1/checkpoint_epoch _ 51.pkl")
 
 
 
