@@ -14,9 +14,10 @@ training:
 
 data:
   dataset_name: GroupActivityDataset
-  data_dir: /kaggle/input/group-activity-recognition-volleyball
-  annot_path: /kaggle/input/group-activity-recognition-volleyball/annot_all.pkl
-  videos_path: /kaggle/input/group-activity-recognition-volleyball/videos
+  data_dir: H:\Group-Activity-Recognition\dataset
+  annot_path: H:\Group-Activity-Recognition\dataset\annot_all.pkl
+  videos_path: H:\Group-Activity-Recognition\dataset\videos
+  
 
 
   video_splits:
@@ -25,6 +26,7 @@ data:
     test: [4, 5, 9, 11, 14, 20, 21, 25, 29, 34, 35, 37, 43, 44, 45, 47]
 
 experiment:
+  baseline: baseline4
   name: "Baseline_B4"
   version: 1
   seed: 31

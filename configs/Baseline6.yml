@@ -31,6 +31,7 @@ data:
     test: [4, 5, 9, 11, 14, 20, 21, 25, 29, 34, 35, 37, 43, 44, 45, 47]
 
 experiment:
+  baseline: baseline6
   name: "Baseline_B6"
   version: 1
   seed: 31
